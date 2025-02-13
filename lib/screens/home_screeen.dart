@@ -31,24 +31,39 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          title: const Text(
-            'My Notes',
-            style: TextStyle(
-              color: Color.fromARGB(255, 203, 208, 255),
-              fontWeight: FontWeight.bold,
-            ),
+          title: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start, // Align text to the left
+            children: [
+              const Text(
+                'My Notes',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 203, 208, 255),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 25, // Larger font size for title
+                ),
+              ),
+              const Text(
+                'Capture Your Thoughts, Anytime !!',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 203, 208, 255),
+                  fontSize: 13, // Smaller font size for subtitle
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
           actions: [
             TextButton.icon(
               label: const Text(
                 'Logout',
                 style: TextStyle(
-                  color: Colors.blueAccent,
+                  color: Colors.blue,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
               ),
-              icon: const Icon(Icons.logout, color: Colors.blueAccent),
+              icon: const Icon(Icons.logout, color: Colors.blue),
               onPressed: () => _handleLogout(context),
             ),
           ],
