@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -69,9 +71,10 @@ class AuthService {
     }
   }
 
-  // Google Sign-In
   Future<User?> signInWithGoogle() async {
     try {
+      await _googleSignIn.signOut();
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -80,6 +83,7 @@ class AuthService {
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
+
       final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -87,6 +91,7 @@ class AuthService {
 
       UserCredential userCredential =
           await _auth.signInWithCredential(credential);
+
       print('Google Sign-In successful for ${userCredential.user?.email}');
 
       if (userCredential.user != null && userCredential.user!.emailVerified) {
@@ -101,7 +106,6 @@ class AuthService {
     }
   }
 
-  // Reset Password
   Future<void> resetPassword(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
@@ -121,7 +125,6 @@ class AuthService {
     }
   }
 
-  // Sign out
   Future<void> signOut() async {
     try {
       await _auth.signOut();
@@ -133,15 +136,12 @@ class AuthService {
     }
   }
 
-  // Verify Email and Login
   Future<User?> verifyEmailAndLogin(String email, String password) async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-
-      // Check if the email is verified
       if (userCredential.user != null && userCredential.user!.emailVerified) {
         print('Login successful for ${userCredential.user!.email}');
         return userCredential.user;

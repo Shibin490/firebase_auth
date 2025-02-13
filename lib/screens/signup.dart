@@ -1,104 +1,19 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:authenticationapp/screens/home_screeen.dart';
-import 'package:authenticationapp/screens/login.dart';
-import 'package:authenticationapp/services/auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:authenticationapp/controller/signup_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class SignUpScreen extends StatefulWidget {
-  @override
-  _SignUpScreenState createState() => _SignUpScreenState();
-}
-
-class _SignUpScreenState extends State<SignUpScreen> {
-  final AuthService _authService = AuthService();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  bool _isPasswordVisible = false;
-  bool _isLoading = false; // Boolean to track the loading state
-
-  void _signUp() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      _showSnackbar('Please fill in both email and password.');
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final user = await _authService.signUpWithEmail(email, password);
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (user != null) {
-        _showSnackbar('Sign up successful! Verification email sent.');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (e is FirebaseAuthException && e.code == 'email-already-in-use') {
-        _showSnackbar('This email is already in use. Please try logging in.');
-      } else {
-        _showSnackbar('Sign up failed. Please try again.');
-      }
-    }
-  }
-
-  void _signInWithGoogle() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final user = await _authService.signInWithGoogle();
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (user != null) {
-        _showSnackbar('Google Sign-In successful.');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-        );
-      } else {
-        _showSnackbar('Google Sign-In failed.');
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      _showSnackbar(
-          'An error occurred during Google Sign-In. Please try again.');
-      print("Google Sign-In error: $e");
-    }
-  }
-
-  void _showSnackbar(String message) {
-    final snackBar = SnackBar(
-      content: Text(message),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
+class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final signUpProvider = Provider.of<SignUpProvider>(context);
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
+        height: size.height,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -110,162 +25,194 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ],
           ),
         ),
-        child: Center(
+        child: SafeArea(
           child: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: size.height * 0.08),
+                  Text(
+                    'Create\nAccount',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Please fill the details to continue',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                  SizedBox(height: 40),
                   Container(
-                    margin: EdgeInsets.only(bottom: 30),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.white.withOpacity(0.08),
+                    ),
+                    padding: EdgeInsets.all(24),
                     child: Column(
                       children: [
-                        Text(
-                          'Getting started!!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24, // Increased the font size
-                            fontWeight: FontWeight.bold,
+                        TextFormField(
+                          controller: signUpProvider
+                              .nameController, // Connect the name controller
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.person_outline,
+                                color: Colors.white70),
+                            labelText: 'Full Name',
+                            labelStyle: TextStyle(color: Colors.white70),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.white24),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
                           ),
                         ),
-                        SizedBox(
-                            height:
-                                8), // Adds some spacing between the two texts
-                        Text(
-                          'Sign up to continue',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16, // Font size for the new text
+                        SizedBox(height: 20),
+                        TextFormField(
+                          controller: signUpProvider.emailController,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.email_outlined,
+                                color: Colors.white70),
+                            labelText: 'Email',
+                            labelStyle: TextStyle(color: Colors.white70),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.white24),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        TextFormField(
+                          controller: signUpProvider.passwordController,
+                          style: TextStyle(color: Colors.white),
+                          obscureText: !signUpProvider.isPasswordVisible,
+                          decoration: InputDecoration(
+                            prefixIcon:
+                                Icon(Icons.lock_outline, color: Colors.white70),
+                            labelText: 'Password',
+                            labelStyle: TextStyle(color: Colors.white70),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                signUpProvider.isPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Colors.white70,
+                              ),
+                              onPressed:
+                                  signUpProvider.togglePasswordVisibility,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.white24),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  // Text(
-                  //   "signup to continue",
-                  //   style: TextStyle(
-                  //     color: Colors.white,
-                  //   ),
-                  // ),
-                  TextField(
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      labelStyle: TextStyle(color: Colors.white),
-                      filled: true,
-                      fillColor: Colors.white.withOpacity(0.1),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide(
-                          color: Colors.white.withOpacity(0.5),
-                          width: 1.0,
-                        ),
+                  SizedBox(height: 32),
+                  if (signUpProvider.isLoading)
+                    Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(
-                          color: Colors.white,
-                          width: 2.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  TextField(
-                    style: TextStyle(color: Colors.white),
-                    controller: _passwordController,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      labelStyle: TextStyle(color: Colors.white),
-                      filled: true,
-                      fillColor: Colors.white.withOpacity(0.1),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _isPasswordVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isPasswordVisible = !_isPasswordVisible;
-                          });
-                        },
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide(
-                          color: Colors.white.withOpacity(0.5),
-                          width: 1.0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(
-                          color: Colors.white,
-                          width: 2.0,
-                        ),
-                      ),
-                    ),
-                    obscureText: !_isPasswordVisible,
-                  ),
-                  SizedBox(height: 20),
-                  _isLoading
-                      ? CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white), // White loading indicator
-                        )
-                      : ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color.fromARGB(255, 16, 22, 203)),
-                          ),
-                          onPressed: _signUp,
-                          child: Text(
-                            'Sign Up with Email',
-                            style: TextStyle(color: Colors.white),
+                    )
+                  else
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: () => signUpProvider.signUp(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              'Create Account',
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 26, 5, 146),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
-                  SizedBox(height: 10),
-                  Text(
-                    "or sign in with",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  ElevatedButton.icon(
-                    icon: Icon(Icons.login, color: Colors.white),
-                    label: Text('Sign Up with Google',
-                        style: TextStyle(color: Colors.white)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 16, 22, 203),
+                        SizedBox(height: 20),
+                        Text(
+                          "or continue with",
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                        SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: OutlinedButton.icon(
+                            icon: Icon(Icons.g_mobiledata,
+                                size: 24, color: Colors.white),
+                            label: Text(
+                              'Google',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: Colors.white24),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: () =>
+                                signUpProvider.signInWithGoogle(context),
+                          ),
+                        ),
+                      ],
                     ),
-                    onPressed: _signInWithGoogle,
-                  ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 32),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         "Already have an account? ",
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: Colors.white70),
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LoginScreen(),
-                            ),
-                          );
+                          Navigator.pushReplacementNamed(context, '/login');
                         },
                         child: Text(
-                          "Login here",
+                          "Sign In",
                           style: TextStyle(
-                            color: Colors.blueAccent,
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
