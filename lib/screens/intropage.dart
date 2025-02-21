@@ -1,10 +1,9 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, use_build_context_synchronously
 
 import 'package:authenticationapp/controller/intro_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
- 
 
 class ToDoListIntro extends StatelessWidget {
   const ToDoListIntro({super.key});
@@ -48,7 +47,7 @@ class ToDoListIntro extends StatelessWidget {
                 ),
                 const SizedBox(height: 10.0),
                 Text(
-                  "write down your thoughts",
+                  "save your thoughts",
                   style: GoogleFonts.poppins(
                     color: Colors.blue.shade200,
                     fontSize: 16.0,
@@ -80,7 +79,8 @@ class ToDoListIntro extends StatelessWidget {
                           Navigator.pushNamed(context, '/signup');
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 36, 36, 199),
+                          backgroundColor:
+                              const Color.fromARGB(255, 36, 36, 199),
                           padding: const EdgeInsets.symmetric(
                             vertical: 15.0,
                             horizontal: 30.0,

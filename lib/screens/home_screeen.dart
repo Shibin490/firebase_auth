@@ -1,16 +1,15 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
-import 'package:authenticationapp/controller/home_provider.dart'; // Ensure this file has the provider logic for managing notes
+import 'package:authenticationapp/controller/home_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Initialize notes listener when the screen is created
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HomeProvider>().listenToNotes();
     });
@@ -32,28 +31,39 @@ class HomeScreen extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           title: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start, // Align text to the left
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'My Notes',
                 style: TextStyle(
                   color: Color.fromARGB(255, 203, 208, 255),
                   fontWeight: FontWeight.bold,
-                  fontSize: 25, // Larger font size for title
+                  fontSize: 25,
                 ),
               ),
               const Text(
                 'Capture Your Thoughts, Anytime !!',
                 style: TextStyle(
                   color: Color.fromARGB(255, 203, 208, 255),
-                  fontSize: 13, // Smaller font size for subtitle
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
           actions: [
+            TextButton.icon(
+              label: const Text(
+                'Images',
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+              icon: const Icon(Icons.image, color: Colors.blue),
+              onPressed: () => Navigator.pushNamed(context, '/s3-home'),
+            ),
             TextButton.icon(
               label: const Text(
                 'Logout',
@@ -109,14 +119,15 @@ class HomeScreen extends StatelessWidget {
               itemCount: provider.notes.length,
               itemBuilder: (context, index) {
                 final note = provider.notes[index];
-                final colors = [
-                  const Color.fromARGB(255, 2, 5, 34),
-                  const Color.fromARGB(255, 83, 9, 9),
-                  const Color.fromARGB(255, 59, 48, 10),
-                  const Color.fromARGB(255, 14, 83, 21),
-                  const Color.fromARGB(255, 54, 11, 39),
-                  const Color.fromARGB(255, 2, 5, 34),
+                const colors = [
+                  Color.fromARGB(255, 255, 89, 0),
+                  Color.fromARGB(255, 114, 6, 160),
+                  Color.fromARGB(255, 14, 204, 30),
+                  Color.fromARGB(255, 67, 97, 238),
+                  Color.fromARGB(255, 225, 25, 75),
+                  Color.fromARGB(255, 174, 230, 6),
                 ];
+
                 final cardColor = colors[index % colors.length];
 
                 return GestureDetector(
@@ -423,13 +434,13 @@ void _showAddNoteDialog(BuildContext context) {
         ),
         content: TextField(
           controller: controller,
-          style: const TextStyle(color: Colors.white), // White text color
+          style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: 'Enter your note...',
-            hintStyle: TextStyle(color: Colors.white), // White hint text
+            hintStyle: TextStyle(color: Colors.white),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.white), // White border
+              borderSide: BorderSide(color: Colors.white),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -456,8 +467,6 @@ void _showAddNoteDialog(BuildContext context) {
               final noteText = controller.text.trim();
               if (noteText.isNotEmpty) {
                 context.read<HomeProvider>().addNote(noteText);
-
-                // Show the snackbar after saving the note
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: const Text('Note added successfully!'),
@@ -466,8 +475,6 @@ void _showAddNoteDialog(BuildContext context) {
                   ),
                 );
               }
-
-              // Close the dialog after saving the note
               Navigator.pop(context);
             },
             child: const Text(
@@ -490,22 +497,20 @@ void _showEditNoteDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
-        backgroundColor:
-            const Color.fromARGB(255, 5, 36, 103), // Matching background color
+        backgroundColor: const Color.fromARGB(255, 5, 36, 103),
         title: const Text(
           'Edit Note',
           style: TextStyle(color: Colors.white),
         ),
         content: TextField(
           controller: controller,
-          style: const TextStyle(color: Colors.white), // White text color
+          style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: 'Edit your note...',
-            hintStyle:
-                const TextStyle(color: Colors.white70), // White hint text
+            hintStyle: const TextStyle(color: Colors.white70),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.white), // White border
+              borderSide: const BorderSide(color: Colors.white),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -530,17 +535,15 @@ void _showEditNoteDialog(
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueAccent, // Button color
+              backgroundColor: Colors.blueAccent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
             onPressed: () {
-              final updatedNoteText =
-                  controller.text.trim(); // The new note input by the user
+              final updatedNoteText = controller.text.trim();
 
               if (updatedNoteText.isEmpty) {
-                // Show snackbar if the text is empty and do not navigate
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: const Text(
@@ -550,11 +553,10 @@ void _showEditNoteDialog(
                     backgroundColor: Colors.black,
                   ),
                 );
-                return; // Exit the function to avoid further execution
+                return;
               }
 
               if (updatedNoteText == originalNoteText) {
-                // Show snackbar if no changes were made and do not navigate
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: const Text('No changes made!',
@@ -564,8 +566,6 @@ void _showEditNoteDialog(
                 );
                 return;
               }
-
-              // If changes are made, update the note, show a success snackbar, and navigate back
               context.read<HomeProvider>().updateNote(noteId, updatedNoteText);
 
               ScaffoldMessenger.of(context).showSnackBar(
@@ -575,8 +575,7 @@ void _showEditNoteDialog(
                 ),
               );
 
-              Navigator.pop(
-                  context); // Close the dialog after updating the note
+              Navigator.pop(context);
             },
             child: const Text(
               'Save',
@@ -594,8 +593,7 @@ void _showDeleteConfirmation(BuildContext context, String noteId) {
     context: context,
     builder: (context) {
       return AlertDialog(
-        backgroundColor:
-            const Color.fromARGB(255, 5, 36, 103), // Matching background color
+        backgroundColor: const Color.fromARGB(255, 5, 36, 103),
         title: const Text(
           'Delete Note',
           style: TextStyle(color: Colors.white),

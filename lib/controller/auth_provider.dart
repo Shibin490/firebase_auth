@@ -1,8 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:authenticationapp/controller/auth.dart'; // Import your existing AuthService
+import 'package:authenticationapp/controller/auth.dart';
 
-// Renamed from AuthProvider to NotesAuthProvider
 class NotesAuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
   User? _user;

@@ -13,26 +13,19 @@ class HomeProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  // FirebaseAuth instance
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  // Stream subscription for real-time updates
   StreamSubscription<QuerySnapshot>? _notesSubscription;
-
-  // Method to listen to notes specific to the current user
   void listenToNotes() {
-    _notesSubscription?.cancel(); // Cancel existing subscription if any
+    _notesSubscription?.cancel(); 
 
-    User? user = _auth.currentUser; // Get current user
+    User? user = _auth.currentUser; 
     if (user != null) {
       _notesSubscription = FirebaseFirestore.instance
           .collection('notes')
-          .where('userId', isEqualTo: user.uid) // Filter by current user's UID
-          // Removed the orderBy to avoid index requirement
+          .where('userId', isEqualTo: user.uid)
           .snapshots()
           .listen(
         (snapshot) {
-          // Convert Firestore data to a list of maps
           _notes = snapshot.docs
               .map((doc) => {
                     'id': doc.id,
@@ -40,8 +33,6 @@ class HomeProvider with ChangeNotifier {
                     'createdAt': (doc['createdAt'] as Timestamp).toDate(),
                   })
               .toList();
-
-          // Sort the notes manually in descending order of 'createdAt'
           _notes.sort((a, b) => b['createdAt'].compareTo(a['createdAt']));
 
           notifyListeners();
@@ -55,19 +46,18 @@ class HomeProvider with ChangeNotifier {
     }
   }
 
-  // Method to add a note for the current user
   Future<void> addNote(String content) async {
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
-      User? user = _auth.currentUser; // Get current user
+      User? user = _auth.currentUser;
       if (user != null) {
         await FirebaseFirestore.instance.collection('notes').add({
           'note': content,
           'createdAt': DateTime.now(),
-          'userId': user.uid, // Store the user's UID
+          'userId': user.uid,
         });
       }
 
@@ -80,17 +70,14 @@ class HomeProvider with ChangeNotifier {
       print('Error adding note: $e');
     }
   }
-
-  // Method to update a note owned by the current user
   Future<void> updateNote(String id, String newContent) async {
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
-      User? user = _auth.currentUser; // Get current user
+      User? user = _auth.currentUser; 
       if (user != null) {
-        // Ensure you're updating the note of the current user
         DocumentSnapshot noteSnapshot =
             await FirebaseFirestore.instance.collection('notes').doc(id).get();
         if (noteSnapshot.exists && noteSnapshot.get('userId') == user.uid) {
@@ -112,17 +99,14 @@ class HomeProvider with ChangeNotifier {
       print('Error updating note: $e');
     }
   }
-
-  // Method to delete a note owned by the current user
   Future<void> deleteNote(String id) async {
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
-      User? user = _auth.currentUser; // Get current user
+      User? user = _auth.currentUser; 
       if (user != null) {
-        // Ensure you're deleting the note of the current user
         DocumentSnapshot noteSnapshot =
             await FirebaseFirestore.instance.collection('notes').doc(id).get();
         if (noteSnapshot.exists && noteSnapshot.get('userId') == user.uid) {

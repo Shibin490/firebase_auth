@@ -1,20 +1,21 @@
-import 'package:authenticationapp/screens/home_screeen.dart';
+import 'package:authenticationapp/controller/auth_wrapper.dart';
 import 'package:authenticationapp/screens/verification%20screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:authenticationapp/controller/cloud_provider.dart';
+import 'package:authenticationapp/screens/cloud_homescreen.dart';
+import 'package:authenticationapp/screens/home_screeen.dart';
 import 'package:authenticationapp/controller/home_provider.dart';
 import 'package:authenticationapp/controller/intro_provider.dart';
 import 'package:authenticationapp/controller/login_provider.dart';
 import 'package:authenticationapp/controller/reset_provider.dart';
 import 'package:authenticationapp/controller/signup_provider.dart';
-import 'package:authenticationapp/screens/intropage.dart';
 import 'package:authenticationapp/screens/login.dart';
 import 'package:authenticationapp/screens/reset_pass.dart';
 import 'package:authenticationapp/screens/signup.dart';
 
-// Navigation Key
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
@@ -22,7 +23,7 @@ void main() async {
   await Firebase.initializeApp();
 
   FirebaseAuth auth = FirebaseAuth.instance;
-  User? currentUser = auth.currentUser; 
+  User? currentUser = auth.currentUser;
 
   runApp(
     MultiProvider(
@@ -32,6 +33,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LoginProvider()),
         ChangeNotifierProvider(create: (_) => ResetPasswordProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => ImageUploadProvider()),
       ],
       child: MyApp(isLoggedIn: currentUser != null),
     ),
@@ -66,15 +68,14 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      initialRoute: isLoggedIn ? '/home' : '/', // Redirect based on login state
+      home: AuthWrapper(),
       routes: {
-        '/': (context) =>
-            const ToDoListIntro(), // Intro screen if not logged in
         '/signup': (context) => SignUpScreen(),
         '/login': (context) => LoginScreen(),
         '/reset-password': (context) => ResetPasswordScreen(),
         '/verification': (context) => VerificationScreen(),
-        '/home': (context) => HomeScreen(), // Home screen for logged-in users
+        '/home': (context) => HomeScreen(),
+        '/s3-home': (context) => UploadScreen(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

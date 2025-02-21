@@ -11,13 +11,10 @@ class SignUpProvider with ChangeNotifier {
   bool isPasswordVisible = false;
   bool isLoading = false;
 
-  // Toggle password visibility
   void togglePasswordVisibility() {
     isPasswordVisible = !isPasswordVisible;
     notifyListeners();
   }
-
-  // Sign up with email, password, and full name
   Future<void> signUp(BuildContext context) async {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
@@ -33,7 +30,6 @@ class SignUpProvider with ChangeNotifier {
       notifyListeners();
       User? user = await _authService.signUpWithEmail(email, password);
       if (user != null) {
-        // Optionally, save the user's full name to the backend or Firestore
         _showSnackbar(context,
             'Verification email sent. Please verify your email before logging in.');
         Navigator.pushReplacementNamed(context, '/verification');
